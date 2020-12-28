@@ -12,10 +12,14 @@ const PORT = process.env.PORT;
 app.use(cors());
 
 // Routes
-app.get('/', homeHandler);
+// app.get('/', homeHandler);
 app.get('/location', locationHandler);
-app.get('/restaurants', restaurantHandler);
+app.get('/weather', weatherHandler);
+// app.get('/restaurants', restaurantHandler);
 app.use('*', notFoundHandler);
+app.get('/',(request, response)=>{
+  response.send('Hello Hoob');
+});
 
 
 
@@ -33,27 +37,21 @@ function locationHandler(request, response) {
   const location = require('./data/location.json');
   const city = request.query.city;
   const locationData = new Location(city, location);
+  response.send(locationData);// To send our new object to the browser
 
-  response.send(locationData);
+}
 
-}
-function homeHandler(request, response) {
-  response.send('Hello World');
-}
-function notFoundHandler(request, response) {
-  response.send('404.  Sorry!');
-}
-function restaurantHandler(request, response) {
+function weatherHandler(request, response) {
   // This function will do two things:
   // request data from our files
   // tailor/normalize the data using a constructor
   // respond with the data (show up in the browser)
-  const data = require('./data/restaurants.json');
-  const restaurantArr = [];
-  data.nearby_restaurants.forEach(restaurant => {
-    restaurantArr.push(new Restaurant(restaurant));
+  const data = require('./data/weather.json');
+  const weathertArr = [];
+  data.data.forEach(weather => {
+    weathertArr.push(new Weather(weather));
   });
-  response.send(restaurantArr);
+  response.send(weathertArr);
 }
 
 
@@ -65,13 +63,14 @@ function Location(city, geoData) {
   this.longitude = geoData[0].lon;
 }
 
-function Restaurant(result) {
-  this.restaurant = result.restaurant.name;
-  this.cuisines = result.restaurant.cuisines;
-  this.locality = result.restaurant.location.locality;
+function Weather(result) {
+  this.time = result.datetime;
+  this.forecast = result.weather.description;
 }
 
-
+function notFoundHandler(request, response) {
+  response.send('404.  Sorry!');
+}
 
 // Start our server!
 app.listen(PORT, () => {
