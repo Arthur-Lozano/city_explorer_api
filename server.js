@@ -55,6 +55,12 @@ function weatherHandler(request, response) {
 }
 
 
+function notFoundHandler(request, response) {
+  response.send('status: 500, Sorry, something went wrong');
+}
+
+
+
 // Constructor
 function Location(city, geoData) {
   this.search_query = city;
@@ -68,9 +74,6 @@ function Weather(result) {
   this.forecast = result.weather.description;
 }
 
-function notFoundHandler(request, response) {
-  response.send('404.  Sorry!');
-}
 
 // Start our server!
 app.listen(PORT, () => {
