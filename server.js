@@ -34,7 +34,9 @@ function locationHandler(request, response) {//BUILD OUR REQUEST TO TALK TO LOCA
   const url = `https://us1.locationiq.com/v1/search.php?key=${key}&q=${city}&format=json`;
   superagent.get(url)
     .then(data => {
+      // console.log(data.body);
       // Create our objects based on our constructor
+      // console.log(data.body);
       const locationData = data.body[0];
       const location = new Location(city, locationData);
       response.status(200).send(location);
@@ -47,12 +49,18 @@ function weatherHandler(request, response) {
   // request data from our files
   // tailor/normalize the data using a constructor
   // respond with the data (show up in the browser)
-  const data = require('./data/weather.json');
-  const weathertArr = [];
-  data.data.forEach(weather => {
-    weathertArr.push(new Weather(weather));
-  });
-  response.send(weathertArr);
+  let key = process.env.WEATHER_API_KEY;
+  let city = request.query.city;
+  const url = `https://api.weatherbit.io/v2.0/current?city=${city}&key=${key}`;
+  superagent.get(url)
+    .then(data => {
+      console.log(data.body);
+      // Create our objects based on our constructor
+      // console.log(data.body);
+      const locationData = data.body[0];
+      const location = new Location(city, locationData);
+      response.status(200).send(location);
+    });
 }
 
 // Constructors
@@ -70,8 +78,8 @@ function Restaurant(entry) {
 }
 
 function Weather(result) {
-  this.time = result.datetime;
-  this.forecast = result.weather.description;
+  this.time = result.ob_time;
+  this.forecast = result.data.weather.description;
 }
 // Constructor
 // function Location(city, geoData) {
