@@ -57,9 +57,9 @@ function weatherHandler(request, response) {
       console.log(data.body);
       // Create our objects based on our constructor
       // console.log(data.body);
-      const locationData = data.body[0];
-      const location = new Location(city, locationData);
-      response.status(200).send(location);
+      const weatherData = data.body[0];
+      const weather = new Weather(city, weatherData);
+      response.status(200).send(weather);
     });
 }
 
