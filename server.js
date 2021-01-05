@@ -8,7 +8,7 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const superagent = require('superagent');
-const { query } = require('express');
+// const { query } = require('express');
 
 
 // Step 2:  Set up our application/Specify port
@@ -24,7 +24,7 @@ app.get('/weather', weatherHandler);
 // app.use('*', notFoundHandler);
 
 function homeHandler(request, response) {
-  response.status(200).send('hello hoobs');
+  response.status(200).send('');
 }
 
 function locationHandler(request, response) {//BUILD OUR REQUEST TO TALK TO LOCATIONIQ
@@ -33,6 +33,7 @@ function locationHandler(request, response) {//BUILD OUR REQUEST TO TALK TO LOCA
   //need API key we just put in env file and put it into our reuqest, call it variable called key
   let key = process.env.GEOCODE_API_KEY;
   const url = `https://us1.locationiq.com/v1/search.php?key=${key}&q=${city}&format=json`;
+  console.log(url);
   superagent.get(url)
     .then(data => {
       // console.log(data.body);
@@ -46,11 +47,11 @@ function locationHandler(request, response) {//BUILD OUR REQUEST TO TALK TO LOCA
 
 
 function weatherHandler(request, response) {
-  console.log(request.query);
+  // console.log(request.query);
   let key = process.env.WEATHER_API_KEY;
   let lat = request.query.latitude;
   let lon = request.query.longitude;
-  const url = `https://api.weatherbit.io/v2.0/forecast/daily?key=${key}&lat=${lat}&lon=${lon}&days=7`;
+  const url = `https://api.weatherbit.io/v2.0/forecast/daily?key=${key}&lat=${lat}&lon=${lon}&days=8`;
   superagent.get(url)
     .then(value => {
       // console.log(value.body);
@@ -77,12 +78,12 @@ function Location(city, geoData) {
 // }
 
 function Weather(result) {
-  console.log(result);
+  // console.log(result);
   // this.city = result.search_query;
   // console.log(result.search_query);
   this.time = result.datetime;
-  // console.log(result.datetime);
   this.forecast = result.weather.description;
+  // console.log(result.datetime);
 }
 // Constructor
 // function Location(city, geoData) {
