@@ -8,6 +8,7 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const superagent = require('superagent');
+const { query } = require('express');
 
 
 // Step 2:  Set up our application/Specify port
@@ -45,21 +46,19 @@ function locationHandler(request, response) {//BUILD OUR REQUEST TO TALK TO LOCA
 
 
 function weatherHandler(request, response) {
-  // This function will do two things:
-  // request data from our files
-  // tailor/normalize the data using a constructor
-  // respond with the data (show up in the browser)
+  console.log(request.query);
   let key = process.env.WEATHER_API_KEY;
-  let city = request.query.city;
-  const url = `https://api.weatherbit.io/v2.0/current?city=${city}&key=${key}`;
+  let lat = request.query.latitude;
+  let lon = request.query.longitude;
+  const url = `https://api.weatherbit.io/v2.0/forecast/daily?key=${key}&lat=${lat}&lon=${lon}&days=7`;
   superagent.get(url)
-    .then(data => {
-      console.log(data.body);
-      // Create our objects based on our constructor
-      // console.log(data.body);
-      const weatherData = data.body[0];
-      const weather = new Weather(city, weatherData);
-      response.status(200).send(weather);
+    .then(value => {
+      // console.log(value.body);
+      const weatherData = value.body.data.map(current => {
+        return new Weather(current);
+      });
+      // const weather = new Weather(weatherData);took out
+      response.status(200).send(weatherData);
     });
 }
 
@@ -71,15 +70,19 @@ function Location(city, geoData) {
   this.longitude = geoData.lon;
 }
 
-function Restaurant(entry) {
-  this.restaurant = entry.restaurant.name;
-  this.cuisines = entry.restaurant.cuisines;
-  this.locality = entry.restaurant.location.locality;
-}
+// function Restaurant(entry) {
+//   this.restaurant = entry.restaurant.name;
+//   this.cuisines = entry.restaurant.cuisines;
+//   this.locality = entry.restaurant.location.locality;
+// }
 
 function Weather(result) {
-  this.time = result.ob_time;
-  this.forecast = result.data.weather.description;
+  console.log(result);
+  // this.city = result.search_query;
+  // console.log(result.search_query);
+  this.time = result.datetime;
+  // console.log(result.datetime);
+  this.forecast = result.weather.description;
 }
 // Constructor
 // function Location(city, geoData) {
