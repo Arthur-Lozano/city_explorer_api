@@ -3,6 +3,17 @@
 
 # Lab 6
 
+Number and name of feature: _____Lab: 06 - Node, npm, and Express___________
+
+Estimate of time needed to complete: __4 hours__
+
+Start time: __11:00___
+
+Finish time: ___20:00__
+
+Actual time needed to complete: __9 hrs___
+
+
 **Author**: Ruben Arthur Lozano
 **Version**: 1.0.0 (increment the patch/fix version number if you make more commits past your first submission)
 
@@ -31,26 +42,17 @@
 - 01-01-2020 0:52 Application has a fully-functional express server with several GET routes that access different data 
 
 
-Number and name of feature: _____Lab: 06 - Node, npm, and Express___________
-
-Estimate of time needed to complete: __4 hours__
-
-Start time: __11:00___
-
-Finish time: ___20:00__
-
-Actual time needed to complete: __9 hrs___
 
 
 Number and name of feature: _____Lab: 07 - APIs___________
 
 Estimate of time needed to complete: __4 hours__
 
-Start time: __11:00___
+Start time: __12:00___
 
-Finish time: ___20:00__
+Finish time: ___17:00__
 
-Actual time needed to complete: __9 hrs___
+Actual time needed to complete: __5 hrs___
 
 
 **Author**: Ruben Arthur Lozano
