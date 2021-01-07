@@ -8,6 +8,12 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const superagent = require('superagent');
+const pg = require('pg');
+
+// Database Connection Setup
+const client = new pg.Client(process.env.DATABASE_URL);
+client.on('error', err => {throw err;});
+
 // const { query } = require('express');
 
 
@@ -50,17 +56,20 @@ function locationHandler(request, response) {//BUILD OUR REQUEST TO TALK TO LOCA
 
 
 function weatherHandler(request, response) {
+
   let key = process.env.WEATHER_API_KEY;
   let lat = request.query.latitude;
   let lon = request.query.longitude;
   const url = `https://api.weatherbit.io/v2.0/forecast/daily?key=${key}&lat=${lat}&lon=${lon}&days=8`;
-  console.log(url)
   superagent.get(url)
     .then(value => {
       const weatherData = value.body.data.map(current => {
         return new Weather(current);
       });
       response.status(200).send(weatherData);
+    }).catch( error => {
+      console.log('ERROR', error);
+      response.status(500).send('So sorry, something went wrong.');
     });
 }
 
@@ -74,10 +83,8 @@ function Location(city, geoData) {
 
 
 function Weather(result) {
-  this.time = result.datetime;
+  this.time = new Date(result.ts*1000).toDateString();
   this.forecast = result.weather.description;
-//   this.latitude = geoData.lat;
-//   this.longitude = geoData.lon;
 }
 
 
@@ -85,7 +92,19 @@ function notFoundHandler(request, response) {
   response.status(404).send('huh?');
 }
 
+
+// Connect to DB and Start the Web Server
+client.connect()
+  .then( () => {
+    app.listen(PORT, () => {
+      console.log('Server up on', PORT);
+      console.log(`${client.connectionParameters.database}`);
+    });
+  })
+  .catch(err => {
+    console.log('ERROR', err);
+  });
 // Listening on the correct port
-app.listen(PORT, () => {
-  console.log('Now listening on port', PORT);
-});
+// app.listen(PORT, () => {
+//   console.log('Now listening on port', PORT);
+// });
