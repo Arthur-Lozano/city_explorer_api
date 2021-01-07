@@ -39,7 +39,7 @@ Actual time needed to complete: __9 hrs___
 
 ## Credits and Collaborations
 <!-- Give credit (and a link) to other people or resources that helped you build this application. -->
-- 01-01-2020 0:52 Application has a fully-functional express server with several GET routes that access different data 
+- 12-28-2020 20:09 Application has a fully-functional express server with several GET routes that access different data 
 
 
 
@@ -80,4 +80,4 @@ Actual time needed to complete: __5 hrs___
 
 ## Credits and Collaborations
 <!-- Give credit (and a link) to other people or resources that helped you build this application. -->
-- 01-01-2020 0:52 Application has a fully-functional express server with several GET routes that access different data 
+- 01-06-2021 21:09 Application has a fully-functional express server with several GET routes that access different data 
