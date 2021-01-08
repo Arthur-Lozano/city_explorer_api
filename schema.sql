@@ -1,9 +1,9 @@
-DROP TABLE IF EXISTS location_web;
+DROP TABLE IF EXISTS cityexplorer;
 
-CREATE TABLE location_web (
+CREATE TABLE cityexplorer (
     id SERIAL PRIMARY KEY,
     search_query VARCHAR(255),
     formatted_query VARCHAR(255),
-    latitude VARCHAR(255),
-    longitude VARCHAR(255)
+    latitude numeric(10, 7),
+    longitude numeric(10, 7)
 );
