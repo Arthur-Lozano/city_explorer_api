@@ -26,25 +26,7 @@ app.use(cors());
 app.get('/', homeHandler);
 app.get('/location', locationHandler);
 app.get('/weather', weatherHandler);
-// Add
-// app.get('/add', (request, response) => {
-//   let search_query = request.query.search_query;
-//   let formated_query = request.query.formatted_query;
-//   let latitude = request.query.latitude;
-//   let longitude = request.query.longitude;
-//   // Reference columns in database
-//   let SQL = 'INSERT INTO cityexplore (search_query, formated_query,latitude,longitude ) VALUES ($1, $2, $3, $4) RETURNING *';// Referencing columns
-//   let locValues = [search_query, formated_query, latitude, longitude];
-//   client.query(SQL, locValues)
-//   console.log(locValues)
-//     .then(results => {
-//       response.status(200).json(results);
-//     })
-//     .catch(error => {
-//       console.log('ERROR', error);
-//       response.status(500).send('So sorry, something went wrong.');
-//     });
-// });
+
 
 
 app.use('*', notFoundHandler);
@@ -62,22 +44,20 @@ function locationHandler(request, response) {//BUILD OUR REQUEST TO TALK TO LOCA
   let cityQuery = [city];
   client.query(SQL, cityQuery)
     .then(results => {
-      if (results.rowCount) {
-        response.status(200).json(results.rows[0]);
+      if (results.rowCount) {// how we know if it is in the database
+        response.status(200).json(results.rows[0]);//if rowcount is greater then zero it will execute 48 and send data from database
       } else {
-        console.log(url);
         superagent.get(url)
           .then(data => {
             const locationData = data.body[0];
             const location = new Location(city, locationData);
             console.log('hi');
 
-            let SQL = 'INSERT INTO cityexplorer (search_query, formated_query,latitude,longitude ) VALUES ($1, $2, $3, $4) RETURNING *';// Referencing columns
-            let locValues = [location.search_query, location.formated_query, location.latitude, location.longitude];
+            let SQL = 'INSERT INTO cityexplorer (search_query, formatted_query,latitude,longitude ) VALUES ($1, $2, $3, $4)';// Referencing columns
+            let locValues = [location.search_query, location.formatted_query, location.latitude, location.longitude];
             client.query(SQL, locValues)
-            console.log(locValues)
-              .then(results => {
-                response.status(200).json(results);
+              .then(() => {
+                response.status(200).json(location);
               })
               .catch(error => {
                 console.log('ERROR', error);
@@ -91,23 +71,14 @@ function locationHandler(request, response) {//BUILD OUR REQUEST TO TALK TO LOCA
       console.log('ERROR', error);
       response.status(500).send('So sorry, something went wrong.');
     });
-
-
 }
-// const promise1 = new Promise((resolve, reject) => {
-//   throw 'Uh-oh!';
-// });
-
-// promise1.catch((error) => {
-//   console.error(error);
-// });
 
 
 function weatherHandler(request, response) {
-
   let key = process.env.WEATHER_API_KEY;
   let lat = request.query.latitude;
   let lon = request.query.longitude;
+  console.log(lat);
   const url = `https://api.weatherbit.io/v2.0/forecast/daily?key=${key}&lat=${lat}&lon=${lon}&days=8`;
   superagent.get(url)
     .then(value => {
@@ -152,7 +123,4 @@ client.connect()
   .catch(err => {
     console.log('ERROR', err);
   });
-// Listening on the correct port
-// app.listen(PORT, () => {
-//   console.log('Now listening on port', PORT);
-// });
+
