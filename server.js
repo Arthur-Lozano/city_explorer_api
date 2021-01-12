@@ -26,6 +26,7 @@ app.use(cors());
 app.get('/', homeHandler);
 app.get('/location', locationHandler);
 app.get('/movies', moviesHandler);
+app.get('/yelp', yelpHandler);
 app.use('*', notFoundHandler);
 
 function homeHandler(request, response) {
@@ -34,22 +35,23 @@ function homeHandler(request, response) {
 
 
 //Movie API
-function moviesHandler(request, response) {//BUILD OUR REQUEST TO TALK TO LOCATIONIQ
+function moviesHandler(request, response) {//BUILD OUR REQUEST TO TALK TO MOVIEAPI
   //Build request before we send it off to
   let city = request.query.city;
-  let key = process.env.GEOCODE_API_KEY;
-  const url = `https://us1.locationiq.com/v1/search.php?key=${key}&q=${city}&format=json`;
+  let key = process.env.MOVIE_API_KEY;
+  const url = `https://api.themoviedb.org/3/movie/550?api_key=${key}`;
+  console.log('Movie api', url);
   let SQL = 'SELECT * FROM cityexplorer WHERE search_query = $1';
-  let cityQuery = [city];
-  client.query(SQL, cityQuery)
-    .then(results => {
+  let movieQuery = [city];
+  client.query(SQL, movieQuery)
+    .then(results => { //We get our data from the API
       if (results.rowCount) {// how we know if it is in the database
         response.status(200).json(results.rows[0]);//if rowcount is greater then zero it will execute 48 and send data from database
       } else {
-        superagent.get(url)
+        superagent.get(url)//Talking to Api
           .then(data => {
             const locationData = data.body[0];
-            const location = new Location(city, locationData);
+            const location = new Movie(city, locationData);
             console.log('hi');
 
             let SQL = 'INSERT INTO cityexplorer (search_query, formatted_query,latitude,longitude ) VALUES ($1, $2, $3, $4)';// Referencing columns
@@ -78,8 +80,8 @@ function locationHandler(request, response) {//BUILD OUR REQUEST TO TALK TO LOCA
   let key = process.env.GEOCODE_API_KEY;
   const url = `https://us1.locationiq.com/v1/search.php?key=${key}&q=${city}&format=json`;
   let SQL = 'SELECT * FROM cityexplorer WHERE search_query = $1';
-  let cityQuery = [city];
-  client.query(SQL, cityQuery)
+  let movieQuery = [city];
+  client.query(SQL, movieQuery)
     .then(results => {
       if (results.rowCount) {// how we know if it is in the database
         response.status(200).json(results.rows[0]);//if rowcount is greater then zero it will execute 48 and send data from database
@@ -110,12 +112,29 @@ function locationHandler(request, response) {//BUILD OUR REQUEST TO TALK TO LOCA
     });
 }
 
+function yelpHandler(request, response) {
+  let key = process.env.YELP_API_KEY;
+  let lat = request.query.latitude;
+  let lon = request.query.longitude;
+  // console.log(lat);
+  const url = `https://api.yelp.com/v3/businesses/search`;
+  console.log(url);response
+  superagent.get(url)
+    .then(value => {
+      const yelpData = value.body.data.map(current => {
+        return new Weather(current);
+      });
+      response.status(200).send(yelpData);
+    }).catch(error => {
+      console.log('ERROR', error);
+      response.status(500).send('So sorry, something went wrong.');
+    });
+}
 
 function weatherHandler(request, response) {
   let key = process.env.WEATHER_API_KEY;
   let lat = request.query.latitude;
   let lon = request.query.longitude;
-  console.log(lat);
   const url = `https://api.weatherbit.io/v2.0/forecast/daily?key=${key}&lat=${lat}&lon=${lon}&days=8`;
   superagent.get(url)
     .then(value => {
@@ -137,13 +156,28 @@ function Location(city, geoData) {
   this.longitude = geoData.lon;
 }
 
+//Yelp
+// function Food(result){
+//   this.name = ;
+//   this.image_url = ;
+//   this.price = ;
+//   this.rating = ;
+//   this.url = ;
+// }
 
-function Weather(result) {
+//Movie
+function Movie(result) {
   this.time = new Date(result.ts * 1000).toDateString();
   this.forecast = result.weather.description;
+  // Based off movie object
+  this.title = result.title;
+  this.overview = result.overview;
+  this.average_votes = result.overview;
+  this.total_votes = result.total_votes;
+  this.image_url = result.image_url;
+  this.popularity = result.popularity;
+  this.released_on = result.released_on;
 }
-
-
 function notFoundHandler(request, response) {
   response.status(404).send('huh?');
 }
