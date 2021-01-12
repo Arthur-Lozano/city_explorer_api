@@ -25,14 +25,51 @@ app.use(cors());
 // Routes
 app.get('/', homeHandler);
 app.get('/location', locationHandler);
-app.get('/weather', weatherHandler);
-
-
-
+app.get('/movies', moviesHandler);
 app.use('*', notFoundHandler);
 
 function homeHandler(request, response) {
   response.status(200).send('');
+}
+
+
+//Movie API
+function moviesHandler(request, response) {//BUILD OUR REQUEST TO TALK TO LOCATIONIQ
+  //Build request before we send it off to
+  let city = request.query.city;
+  let key = process.env.GEOCODE_API_KEY;
+  const url = `https://us1.locationiq.com/v1/search.php?key=${key}&q=${city}&format=json`;
+  let SQL = 'SELECT * FROM cityexplorer WHERE search_query = $1';
+  let cityQuery = [city];
+  client.query(SQL, cityQuery)
+    .then(results => {
+      if (results.rowCount) {// how we know if it is in the database
+        response.status(200).json(results.rows[0]);//if rowcount is greater then zero it will execute 48 and send data from database
+      } else {
+        superagent.get(url)
+          .then(data => {
+            const locationData = data.body[0];
+            const location = new Location(city, locationData);
+            console.log('hi');
+
+            let SQL = 'INSERT INTO cityexplorer (search_query, formatted_query,latitude,longitude ) VALUES ($1, $2, $3, $4)';// Referencing columns
+            let locValues = [location.search_query, location.formatted_query, location.latitude, location.longitude];
+            client.query(SQL, locValues)
+              .then(() => {
+                response.status(200).json(location);
+              })
+              .catch(error => {
+                console.log('ERROR', error);
+                response.status(500).send('So sorry, something went wrong.');
+              });
+          })
+          .catch(error => (console.log(error)));
+      }
+    })
+    .catch(error => {
+      console.log('ERROR', error);
+      response.status(500).send('So sorry, something went wrong.');
+    });
 }
 
 function locationHandler(request, response) {//BUILD OUR REQUEST TO TALK TO LOCATIONIQ
