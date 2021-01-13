@@ -38,7 +38,10 @@ function homeHandler(request, response) {
 function yelpHandler(request, response) {
   let city = request.query.search_query;
   let key = process.env.YELP_API_KEY;
-  const url = `https://api.yelp.com/v3/businesses/search?location=${city}&limit=5&offset=2`;
+  const numPerPage = 5;
+  const page = request.query.page || 1;
+  const start = ((page -1) * numPerPage + 1);
+  const url = `https://api.yelp.com/v3/businesses/search?location=${city}&limit=5&offset=${start}`;
   console.log(url);
   superagent.get(url)
     .auth(key,{ type: 'bearer' })
