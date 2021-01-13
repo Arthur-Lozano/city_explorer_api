@@ -26,7 +26,7 @@ app.use(cors());
 app.get('/', homeHandler);
 app.get('/location', locationHandler);
 app.get('/movies', moviesHandler);
-// app.get('/yelp', yelpHandler);
+app.get('/yelp', yelpHandler);
 app.get('/weather', weatherHandler);
 app.use('*', notFoundHandler);
 
@@ -34,6 +34,21 @@ function homeHandler(request, response) {
   response.status(200).send('');
 }
 
+//Yelp
+function yelpHandler(request, response) {
+  let city = request.query.search_query;
+  let key = process.env.YELP_API_KEY;
+  const url = `https://api.yelp.com/v3/businesses/search?location=${city}&limit=5&offset=2`;
+  console.log(url);
+  superagent.get(url)
+    .auth(key,{ type: 'bearer' })
+    .then(getBus => {
+      const yelpKnow = getBus.body.businesses;
+      console.log(yelpKnow);
+      const addMe = yelpKnow.map(getBus => new Food(getBus));
+      response.json(addMe);
+    }).catch(error => console.log(error));
+}
 
 //Movie API
 function moviesHandler(request, response) {//BUILD OUR REQUEST TO TALK TO MOVIEAPI
@@ -47,7 +62,7 @@ function moviesHandler(request, response) {//BUILD OUR REQUEST TO TALK TO MOVIEA
     .then(data => {
       let movieInfo = data.body.results.map(vid => {
         let baseUrl = 'https://image.tmdb.org/t/p/w300';
-        let filePath = data.body.poster_path;
+        let filePath = vid.poster_path;
         let imageLink = baseUrl + filePath;
 
         return new Movies(vid, imageLink);
@@ -58,8 +73,8 @@ function moviesHandler(request, response) {//BUILD OUR REQUEST TO TALK TO MOVIEA
       response.status(500).json('Good to go');
       console.log(err);
     });
-
 }
+
 function locationHandler(request, response) {//BUILD OUR REQUEST TO TALK TO LOCATIONIQ
   //Build request before we send it off to
   let city = request.query.city;
@@ -76,7 +91,6 @@ function locationHandler(request, response) {//BUILD OUR REQUEST TO TALK TO LOCA
           .then(data => {
             const locationData = data.body[0];
             const location = new Location(city, locationData);
-            console.log('hi');
 
             let SQL = 'INSERT INTO cityexplorer (search_query, formatted_query,latitude,longitude ) VALUES ($1, $2, $3, $4)';// Referencing columns
             let locValues = [location.search_query, location.formatted_query, location.latitude, location.longitude];
@@ -98,25 +112,6 @@ function locationHandler(request, response) {//BUILD OUR REQUEST TO TALK TO LOCA
     });
 }
 
-// function yelpHandler(request, response) {
-//   let location = request.query.location;
-//   let key = process.env.YELP_API_KEY;
-//   let lat = request.query.latitude;
-//   let lon = request.query.longitude;
-//   // console.log(lat);
-//   const url = `https://api.yelp.com/v3/businesses/search?location=${location}`;
-//   console.log(url);response
-//   superagent.get(url)
-//     .then(value => {
-//       const yelpData = value.body.data.map(current => {
-//         return new Weather(current);
-//       });
-//       response.status(200).send(yelpData);
-//     }).catch(error => {
-//       console.log('ERROR', error);
-//       response.status(500).send('So sorry, something went wrong.');
-//     });
-// }
 
 function weatherHandler(request, response) {
   let key = process.env.WEATHER_API_KEY;
@@ -144,13 +139,15 @@ function Location(city, geoData) {
 }
 
 // Yelp
-// function Food(result){
-//   this.name = result.name;
-//   this.image_url = result.image_url;
-//   this.price = result.price;
-//   this.rating = result.rating;
-//   this.url = result.url;
-// }
+function Food(result) {
+  this.name = result.name;
+  this.image_url = result.image_url;
+  this.price = result.price;
+  this.rating = result.rating;
+  this.url = result.url;
+}
+
+
 function Weather(result) {
   this.time = new Date(result.ts * 1000).toDateString();
   this.forecast = result.weather.description;
@@ -158,13 +155,13 @@ function Weather(result) {
 
 
 //Movie
-function Movies(result) {
+function Movies(result, image) {
   // Based off movie object
   this.title = result.original_title;
   this.overview = result.overview;
   this.average_votes = result.vote_average;
   this.total_votes = result.vote_count;
-  this.image_url = result.poster_path;
+  this.image_url = image;
   this.popularity = result.popularity;
   this.released_on = result.release_date;
 }
