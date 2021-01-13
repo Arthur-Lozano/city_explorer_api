@@ -78,7 +78,7 @@ Actual time needed to complete: __9 hrs___
 ## Change Log
 <!-- Use this area to document the iterative changes made to your application as each feature is successfully implemented. Use time stamps. Here's an examples:
 
-01-01-2001 4:59pm - Application now has a fully-functional express server, with a GET route for the location resource.
+01-04-2021 11:59pm - Application now has a fully-functional express server, with a GET route for the location resource.
 
 ## Credits and Collaborations
 <!-- Give credit (and a link) to other people or resources that helped you build this application. -->
@@ -116,7 +116,7 @@ Actual time needed to complete: __5 hrs___
 ## Change Log
 <!-- Use this area to document the iterative changes made to your application as each feature is successfully implemented. Use time stamps. Here's an examples:
 
-01-01-2001 4:59pm - Application now has a fully-functional express server, with a GET route for the location resource.
+01-7-2021 11:00pm - Application now has a fully-functional express server, with a GET route for the location resource.
 
 ## Credits and Collaborations
 <!-- Give credit (and a link) to other people or resources that helped you build this application. -->
@@ -136,12 +136,14 @@ Requests movies related to the area, yelp info, and events near the location.
 - connect variables to keys within env
 - Create handlers
 ## Architecture
-<!-- Provide a detailed description of the application design. What technologies (languages, libraries, etc) you're using, and any other relevant design information. -->
+- Express
+- Heroku
+- Superagent
 
 ## Change Log
 <!-- Use this area to document the iterative changes made to your application as each feature is successfully implemented. Use time stamps. Here's an examples:
 
-01-01-2001 4:59pm - Application now has a fully-functional express server, with a GET route for the location resource.
+01-13-2021 11:30pm - Application now has a fully-functional express server, with a GET routs for yelp and a movie API.
 
 ## Credits and Collaborations
 Davion Garcia, Nico, some TAs-->
